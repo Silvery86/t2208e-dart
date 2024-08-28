@@ -49,7 +49,8 @@ Future<void> viewAllStudents() async {
     for (var student in students) {
       print("ID: ${student.id}, Name: ${student.name}");
       for (var subject in student.subjects) {
-        print("  Subject: ${subject.subjectName}, Scores: ${subject.testScores.join(', ')}");
+        print(
+            "  Subject: ${subject.subjectName}, Scores: ${subject.testScores.join(', ')}");
       }
     }
   }
@@ -58,19 +59,53 @@ Future<void> viewAllStudents() async {
 Future<void> addNewStudent() async {
   stdout.write("Enter Student ID: ");
   String id = stdin.readLineSync()!;
+
   stdout.write("Enter Student Name: ");
   String name = stdin.readLineSync()!;
 
   List<Subject> subjects = [];
+
   while (true) {
-    stdout.write("Enter Subject Name: ");
+    stdout.write("Enter Subject Name (or 'done' to finish add student): ");
     String subjectName = stdin.readLineSync()!;
     if (subjectName.toLowerCase() == 'done') break;
 
-    stdout.write("Enter Test Scores: ");
-    List<int> scores = stdin.readLineSync()!.split(',').map((s) => int.parse(s.trim())).toList();
+    List<int> scores = [];
+
+    // Request 3 scores from the user
+    for (int i = 1; i <= 3; i++) {
+      while (true) {
+        stdout.write("Enter Test Score #$i for '$subjectName': ");
+        String? scoreInput = stdin.readLineSync();
+
+        if (scoreInput == null || scoreInput.trim().isEmpty) {
+          print("Score cannot be empty. Please enter a valid number.");
+          continue; // Prompt again
+        }
+
+        try {
+          int score = int.parse(scoreInput.trim());
+          scores.add(score);
+          break; // Exit the inner loop if score is valid
+        } catch (e) {
+          print("Invalid input. Please enter a valid number.");
+        }
+      }
+    }
+
+    // Skip adding the subject if no valid scores were entered
+    if (scores.isEmpty) {
+      print("No valid scores entered for subject '$subjectName'. Skipping...");
+      continue;
+    }
 
     subjects.add(Subject(subjectName: subjectName, testScores: scores));
+  }
+
+  // Ensure at least one subject was entered
+  if (subjects.isEmpty) {
+    print("No subjects entered. Cannot add student.");
+    return;
   }
 
   Student newStudent = Student(id: id, name: name, subjects: subjects);
@@ -96,10 +131,12 @@ Future<void> editStudent() async {
 
   List<Subject> subjects = [];
   for (var subject in student.subjects) {
-    stdout.write("Enter New Scores for ${subject.subjectName} (or press Enter to keep current): ");
+    stdout.write(
+        "Enter New Scores for ${subject.subjectName} (or press Enter to keep current): ");
     String? newScores = stdin.readLineSync();
     if (newScores != null && newScores.isNotEmpty) {
-      subject.testScores = newScores.split(',').map((s) => int.parse(s.trim())).toList();
+      subject.testScores =
+          newScores.split(',').map((s) => int.parse(s.trim())).toList();
     }
     subjects.add(subject);
   }
@@ -121,7 +158,8 @@ Future<void> searchStudent() async {
     for (var student in students) {
       print("ID: ${student.id}, Name: ${student.name}");
       for (var subject in student.subjects) {
-        print("  Subject: ${subject.subjectName}, Scores: ${subject.testScores.join(', ')}");
+        print(
+            "  Subject: ${subject.subjectName}, Scores: ${subject.testScores.join(', ')}");
       }
     }
   }
